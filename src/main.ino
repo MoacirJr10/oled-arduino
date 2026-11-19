@@ -16,8 +16,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 MFRC522 rfid(PINO_SDA, PINO_RST);
 
 // ===================== UIDs AUTORIZADOS =====================
-String uid_chaveiro = "f2 b1 ae 20";
-String uid_cartao   = "ba 3e 39 05";
+// Demonstração: configure UIDs de teste localmente; vazio bloqueia todos.
+const char* uid_chaveiro = "";
+const char* uid_cartao = "";
 
 void setup() {
   Serial.begin(9600);
@@ -50,8 +51,7 @@ void loop() {
   }
   conteudo.toLowerCase(); // Garante letras minúsculas
 
-  Serial.print("UID RFID: ");
-  Serial.println(conteudo.substring(1));
+  // Não registrar identificadores de cartões.
 
   // Limpa display e seleciona fonte
   display.clearDisplay();
@@ -59,7 +59,7 @@ void loop() {
   display.setCursor(10, 40);
 
   // Verifica UID e mostra no OLED
-  if (conteudo.substring(1) == uid_chaveiro || conteudo.substring(1) == uid_cartao) {
+  if ((uid_chaveiro[0] && conteudo.substring(1) == uid_chaveiro) || (uid_cartao[0] && conteudo.substring(1) == uid_cartao)) {
     display.print(F("OPEN"));
     Serial.println("Acesso liberado");
   } else {
@@ -74,4 +74,5 @@ void loop() {
   display.display();
 
   rfid.PICC_HaltA(); // Para comunicação com o cartão
+  rfid.PCD_StopCrypto1();
 }
